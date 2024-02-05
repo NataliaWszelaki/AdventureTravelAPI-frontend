@@ -9,7 +9,9 @@ group = 'com.crud'
 version = '0.0.1-SNAPSHOT'
 
 java {
-    sourceCompatibility = '17'
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 repositories {
@@ -22,7 +24,13 @@ ext {
 
 dependencies {
     implementation 'com.vaadin:vaadin-spring-boot-starter'
+
+    implementation 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.parttio:line-awesome:2.0.0'
+    implementation 'com.vaadin:vaadin'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'com.vaadin:vaadin-testbench-junit5'
 }
 
 dependencyManagement {
