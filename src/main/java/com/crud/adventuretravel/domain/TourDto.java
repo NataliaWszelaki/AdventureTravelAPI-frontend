@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @EqualsAndHashCode
 @NoArgsConstructor
-public class TourDto implements DtoHandler {
+public class TourDto {
 
     private long id;
     private String name;
@@ -20,22 +20,4 @@ public class TourDto implements DtoHandler {
     private String startLocation;
     private String endLocation;
     private Double priceEuro;
-    private Double pricePln;
-
-    @Override
-    public String endpointName() {
-
-        return "tours";
-    }
-
-    @Override
-    public DtoHandler newDtoHandler() {
-
-        return new TourDto();
-    }
-
-    public long getId() {
-
-        return id;
-    }
 }

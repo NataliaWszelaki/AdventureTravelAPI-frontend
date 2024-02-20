@@ -10,7 +10,7 @@ import java.util.Set;
 @AllArgsConstructor
 @EqualsAndHashCode
 @NoArgsConstructor
-public class ReservationDto implements DtoHandler {
+public class ReservationDto {
 
     private long id;
     private long tourId;
@@ -20,15 +20,13 @@ public class ReservationDto implements DtoHandler {
     private PaymentStatus paymentStatus;
     private ReservationStatus reservationStatus;
 
-    @Override
-    public String endpointName() {
-
-        return "reservations";
-    }
-
-    @Override
-    public DtoHandler newDtoHandler() {
-
-        return new ReservationDto();
+    public ReservationDto(long tourId, long customerId, Set<Long> attractionLongSet, LocalDate reservationDate,
+                          PaymentStatus paymentStatus, ReservationStatus reservationStatus) {
+        this.tourId = tourId;
+        this.customerId = customerId;
+        this.attractionLongSet = attractionLongSet;
+        this.reservationDate = reservationDate;
+        this.paymentStatus = paymentStatus;
+        this.reservationStatus = reservationStatus;
     }
 }

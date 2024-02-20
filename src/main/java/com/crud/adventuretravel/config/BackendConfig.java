@@ -1,4 +1,4 @@
-package com.crud.adventuretravel.backend;
+package com.crud.adventuretravel.config;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;

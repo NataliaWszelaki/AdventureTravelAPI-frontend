@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class AdventureTravelApiFrontendApplication implements AppShellConfigurator {
 
     public static void main(String[] args) {
+
         SpringApplication.run(AdventureTravelApiFrontendApplication.class, args);
     }
 }

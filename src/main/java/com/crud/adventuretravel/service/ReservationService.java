@@ -1,7 +1,7 @@
 package com.crud.adventuretravel.service;
 
-import com.crud.adventuretravel.backend.BackendClient;
-import com.crud.adventuretravel.backend.BackendRequestException;
+import com.crud.adventuretravel.backendClient.BackendRequestException;
+import com.crud.adventuretravel.backendClient.ReservationBackendClient;
 import com.crud.adventuretravel.domain.ReservationDto;
 import org.springframework.stereotype.Service;
 
@@ -12,31 +12,51 @@ import java.util.stream.Collectors;
 @Service
 public class ReservationService {
 
-    private static BackendClient backendClient;
+    private static ReservationBackendClient reservationBackendClient;
     private static ReservationService reservationService;
 
-    public ReservationService(BackendClient backendClient) {
+    public ReservationService(ReservationBackendClient reservationBackendClient) {
 
-        ReservationService.backendClient = backendClient;
+        ReservationService.reservationBackendClient = reservationBackendClient;
     }
 
     public static ReservationService getInstance() {
 
         if (reservationService == null) {
-            reservationService = new ReservationService(backendClient);
+            reservationService = new ReservationService(reservationBackendClient);
         }
         return reservationService;
     }
 
     public List<ReservationDto> getAllReservations() {
 
-        return backendClient.getReservationsList();
+        return reservationBackendClient.getReservationsList();
+    }
+
+    public ReservationDto getReservationById(long reservationId) {
+
+        return reservationBackendClient.getReservationById(reservationId);
     }
 
     public void saveReservationDto(ReservationDto reservationDto) throws BackendRequestException {
 
         System.out.println(reservationDto.getTourId());
-        backendClient.post(reservationDto);
+        reservationBackendClient.post(reservationDto);
+    }
+
+    public void updateReservationDto(ReservationDto reservationDto) throws BackendRequestException {
+
+        reservationBackendClient.put(reservationDto);
+    }
+
+    public void updateReservationDtoDeactivate(ReservationDto reservationDto) throws BackendRequestException {
+
+        reservationBackendClient.putReservationDeactivate(reservationDto);
+    }
+
+    public void deleteReservationDto(long reservationId) throws BackendRequestException {
+
+        reservationBackendClient.delete(reservationId);
     }
 
     public List<ReservationDto> findByName(String name) {
@@ -44,22 +64,12 @@ public class ReservationService {
         List<ReservationDto> reservationDtoList = getAllReservations();
         return reservationDtoList.stream()
                 .map(r -> CustomerService.getInstance().getCustomerById(r.getCustomerId()))
-                .filter(c -> c.getFullName().contains(name))
+                .filter(c -> c.getFullName().toLowerCase().contains(name.toLowerCase()))
                 .map(customer -> reservationDtoList.stream()
                         .filter(r -> r.getCustomerId() == customer.getId())
                         .findFirst()
                         .orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-    }
-
-    public void deleteReservationDto(ReservationDto reservationDto) {
-
-        backendClient.delete(reservationDto);
-    }
-
-    public void updateReservationDto(ReservationDto reservationDto) throws BackendRequestException {
-
-        backendClient.put(reservationDto);
     }
 }

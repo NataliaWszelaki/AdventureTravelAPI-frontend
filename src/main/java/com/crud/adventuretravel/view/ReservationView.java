@@ -4,8 +4,8 @@ import com.crud.adventuretravel.domain.AttractionDto;
 import com.crud.adventuretravel.domain.CustomerDto;
 import com.crud.adventuretravel.domain.ReservationDto;
 import com.crud.adventuretravel.domain.TourDto;
-import com.crud.adventuretravel.form.ReservationForm.NewReservationForm;
-import com.crud.adventuretravel.form.ReservationForm.UpdateReservationForm;
+import com.crud.adventuretravel.form.reservationForm.NewReservationForm;
+import com.crud.adventuretravel.form.reservationForm.UpdateReservationForm;
 import com.crud.adventuretravel.service.AttractionService;
 import com.crud.adventuretravel.service.CustomerService;
 import com.crud.adventuretravel.service.ReservationService;
@@ -21,15 +21,17 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
+import lombok.Getter;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
+@Getter
+@PermitAll
 @PageTitle("Reservations")
 @Route(value = "reservations", layout = MainLayout.class)
 public class ReservationView extends VerticalLayout {
-
 
     private ReservationService reservationService = ReservationService.getInstance();
     private Grid<ReservationDto> grid = new Grid<>();
@@ -37,63 +39,58 @@ public class ReservationView extends VerticalLayout {
     private NewReservationForm newReservationForm = new NewReservationForm(this);
     private UpdateReservationForm updateReservationForm = new UpdateReservationForm(this);
     private Button addNewReservation = new Button("Add new Reservation");
-    private Button updateReservation = new Button("Update Reservation");
-
 
     public ReservationView() {
 
+        setSizeFull();
         setFilter();
         addColumnsToGrid();
+        setForms();
+
+        HorizontalLayout toolbar = new HorizontalLayout(filter, addNewReservation);
+        HorizontalLayout mainContent = new HorizontalLayout(grid, newReservationForm, updateReservationForm);
+        mainContent.setSizeFull();
+        add(toolbar, mainContent);
+
+        refresh();
+    }
+
+    private void setFilter() {
+
+        filter.setPlaceholder("Filter by Customer");
+        filter.setClearButtonVisible(true);
+        filter.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
+        filter.setValueChangeMode(ValueChangeMode.EAGER);
+        filter.addValueChangeListener(e -> grid.setItems(reservationService.findByName(filter.getValue())));
+    }
+
+    private void addColumnsToGrid() {
+
+        grid.addColumn(ReservationDto::getId).setHeader("Id").setAutoWidth(true);
+        grid.addColumn(ReservationView::formatTourName).setHeader("Tour").setWidth("210px");
+        grid.addColumn(ReservationView::formatCustomerName).setHeader("Customer").setAutoWidth(true);
+        grid.addColumn(ReservationView::formatAttractionName).setHeader("Additional Attractions").setWidth("220px");
+        grid.addColumn(ReservationDto::getReservationDate).setHeader("Reservation Date").setAutoWidth(true);
+        grid.addColumn(ReservationDto::getPaymentStatus).setHeader("Payment Status").setWidth("80px");
+        grid.addColumn(ReservationDto::getReservationStatus).setHeader("Reservation Status").setWidth("80px");
+        grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
+        grid.setSizeFull();
+    }
+
+    private void setForms() {
+
+        newReservationForm.setReservationDto(null);
+        updateReservationForm.setReservationDto(null);
 
         addNewReservation.addClickListener(e -> {
             updateReservationForm.setReservationDto(null);
             newReservationForm.setReservationDto(new ReservationDto());
         });
 
-        updateReservation.addClickListener(e -> {
-            newReservationForm.setReservationDto(null);
-            updateReservationForm.setReservationDto(new ReservationDto());
-        });
-
-        HorizontalLayout toolbar = new HorizontalLayout(filter, addNewReservation, updateReservation);
-
-        HorizontalLayout mainContent = new HorizontalLayout(grid, newReservationForm, updateReservationForm);
-        mainContent.setSizeFull();
-        grid.setSizeFull();
-
-        add(toolbar, mainContent);
-
-        newReservationForm.setReservationDto(null);
-        updateReservationForm.setReservationDto(null);
-
-        setSizeFull();
-        refresh();
-
         grid.asSingleSelect().addValueChangeListener(event -> {
             newReservationForm.setReservationDto(null);
-            updateReservationForm.setReservationDto(grid.asSingleSelect().getValue());
+            updateReservationForm.setReservationDto(event.getValue());
         });
-    }
-
-    public void setFilter() {
-
-        filter.setPlaceholder("Filter by Customer's name...");
-        filter.setClearButtonVisible(true);
-        filter.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
-        filter.setValueChangeMode(ValueChangeMode.EAGER);
-        grid.setItems(reservationService.findByName(filter.getValue()));
-    }
-
-    public void addColumnsToGrid() {
-
-        grid.addColumn(ReservationDto::getId).setHeader("Id");
-        grid.addColumn(ReservationView::formatTourName).setHeader("Tour");
-        grid.addColumn(ReservationView::formatCustomerName).setHeader("Customer");
-        grid.addColumn(ReservationView::formatAttractionName).setHeader("Additional Attractions");
-        grid.addColumn(ReservationDto::getReservationDate).setHeader("Reservation Date");
-        grid.addColumn(ReservationDto::getPaymentStatus).setHeader("Payment Status");
-        grid.addColumn(ReservationDto::getReservationStatus).setHeader("Reservation Status");
-        grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
     }
 
     public void refresh() {
@@ -122,8 +119,10 @@ public class ReservationView extends VerticalLayout {
                 .map(a -> AttractionService.getInstance().getAttractionById(a))
                 .collect(Collectors.toSet());
         StringBuilder stringBuilder = new StringBuilder();
+        int i = 1;
         for (AttractionDto attractionDto : attractionDtoSet) {
-            stringBuilder.append(attractionDto.getName()).append(". \n");
+            stringBuilder.append(i).append(". ").append(attractionDto.getCityAndName()).append(". ");
+            i++;
         }
         return stringBuilder.toString();
     }

@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @EqualsAndHashCode
 @NoArgsConstructor
-public class CustomerDto implements DtoHandler {
+public class CustomerDto {
 
     private long id;
     private String firstName;
@@ -19,18 +19,7 @@ public class CustomerDto implements DtoHandler {
     private int phoneNumber;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate accountCreationDate;
-
-    @Override
-    public String endpointName() {
-
-        return "customers";
-    }
-
-    @Override
-    public DtoHandler newDtoHandler() {
-
-        return new CustomerDto();
-    }
+    private boolean subscriber;
 
     public String getFullName() {
 

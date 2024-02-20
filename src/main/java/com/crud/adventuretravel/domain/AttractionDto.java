@@ -7,24 +7,29 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode
 @NoArgsConstructor
-public class AttractionDto implements DtoHandler {
+public class AttractionDto {
 
     long id;
-    private String name;
+    private int location_id;
     private String city;
+    private String name;
     private String description;
+    private String category;
+    private String title;
     private Double priceEuro;
-    private Double pricePln;
 
-    @Override
-    public String endpointName() {
-
-        return "attractions";
+    public AttractionDto(int location_id, String city, String name, String description, String category, String title, Double priceEuro) {
+        this.location_id = location_id;
+        this.city = city;
+        this.name = name;
+        this.description = description;
+        this.category = category;
+        this.title = title;
+        this.priceEuro = priceEuro;
     }
 
-    @Override
-    public DtoHandler newDtoHandler() {
+    public String getCityAndName() {
 
-        return new AttractionDto();
+        return getCity() + " - " + getName();
     }
 }

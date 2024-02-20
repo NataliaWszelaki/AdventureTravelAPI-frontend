@@ -1,8 +1,10 @@
 package com.crud.adventuretravel.view;
 
 
+import com.crud.adventuretravel.security.SecurityService;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
@@ -17,12 +19,26 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 public class MainLayout extends AppLayout {
 
     private H2 viewTitle;
+    private final SecurityService securityService;
 
-    public MainLayout() {
+    public MainLayout(SecurityService securityService) {
 
+        this.securityService = securityService;
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
         addHeaderContent();
+    }
+
+    private void addDrawerContent() {
+
+        H1 appName = new H1("Adventure Travel CRM");
+        appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+
+        Header header = new Header(appName);
+
+        Scroller scroller = new Scroller(createNavigation());
+
+        addToDrawer(header, scroller, createFooter());
     }
 
     private void addHeaderContent() {
@@ -33,18 +49,14 @@ public class MainLayout extends AppLayout {
         viewTitle = new H2();
         viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
-        addToNavbar(true, toggle, viewTitle);
-    }
+        String u = securityService.getAuthenticatedUser().getUsername();
+        Button logout = new Button("Log out " + u, e -> securityService.logout());
 
-    private void addDrawerContent() {
+        logout.getStyle().set("font-size", "var(--lumo-font-size-l)")
+                .set("right", "var(--lumo-space-l)").set("margin", "0")
+                .set("position", "absolute");
 
-        H1 appName = new H1("Adventure Travel CRM");
-        appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
-        Header header = new Header(appName);
-
-        Scroller scroller = new Scroller(createNavigation());
-
-        addToDrawer(header, scroller, createFooter());
+        addToNavbar(true, toggle, viewTitle, logout);
     }
 
     private SideNav createNavigation() {
