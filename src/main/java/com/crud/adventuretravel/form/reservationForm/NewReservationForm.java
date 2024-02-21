@@ -91,13 +91,15 @@ public class NewReservationForm extends FormLayout {
     private void save() throws BackendRequestException {
 
         reservationService.saveReservationDto(fetchDataFromForm());
+        clearForm();
         reservationView.refresh();
         setReservationDto(null);
-        clearForm();
+
     }
 
     private void cancel() {
 
+        clearForm();
         reservationView.refresh();
         setReservationDto(null);
     }
