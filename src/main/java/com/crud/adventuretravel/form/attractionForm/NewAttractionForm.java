@@ -21,6 +21,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
+import java.util.Collections;
+import java.util.List;
+
 public class NewAttractionForm extends FormLayout {
 
     private AttractionView attractionView;
@@ -68,9 +71,13 @@ public class NewAttractionForm extends FormLayout {
         locationSearchDtoGrid.setMinWidth("800px");
         locationSearchDtoGrid.setMaxHeight("250px");
 
-        locationSearchDtoGrid.asSingleSelect().addValueChangeListener(event ->
-                attractionDetailsDtoGrid.setItems(touristAttractionApiService.getAllAttractionDetails(
-                        locationSearchDtoGrid.asSingleSelect().getValue().getLocation_id())));
+        locationSearchDtoGrid.asSingleSelect().addValueChangeListener(event -> {
+            if (locationSearchDtoGrid.asSingleSelect().getValue() != null) {
+                int locationId = locationSearchDtoGrid.asSingleSelect().getValue().getLocation_id();
+                List<AttractionDetailsDto> attractionDetailsDtoList = touristAttractionApiService.getAllAttractionDetails(locationId);
+                attractionDetailsDtoGrid.setItems(attractionDetailsDtoList);
+            }
+        });
     }
 
     private void setAttractionDetailsDtoGrid() {
@@ -85,7 +92,8 @@ public class NewAttractionForm extends FormLayout {
         attractionDetailsDtoGrid.setMinWidth("800px");
         attractionDetailsDtoGrid.setMaxHeight("250px");
 
-        attractionDetailsDtoGrid.asSingleSelect().addValueChangeListener(event ->
+        attractionDetailsDtoGrid.asSingleSelect().addValueChangeListener(event -> {
+            if (attractionDetailsDtoGrid.asSingleSelect().getValue() != null) {
                 attractionDto = new AttractionDto(
                         attractionDetailsDtoGrid.asSingleSelect().getValue().getLocation_id(),
                         attractionDetailsDtoGrid.asSingleSelect().getValue().getCity(),
@@ -94,7 +102,9 @@ public class NewAttractionForm extends FormLayout {
                         attractionDetailsDtoGrid.asSingleSelect().getValue().getCategory(),
                         attractionDetailsDtoGrid.asSingleSelect().getValue().getTitle(),
                         (double) attractionDetailsDtoGrid.asSingleSelect().getValue().getPriceEuro()
-                ));
+                );
+            }
+        });
     }
 
     private void setButtons() {
@@ -116,14 +126,21 @@ public class NewAttractionForm extends FormLayout {
     private void save() throws BackendRequestException {
 
         attractionService.saveAttractionDto(attractionDto);
+        attractionDetailsDtoGrid.setItems(Collections.emptyList());
+        locationSearchDtoGrid.setItems(Collections.emptyList());
+        searchField.clear();
         attractionView.refresh();
         setAttractionDto(null);
     }
 
     private void cancel() {
 
-        attractionView.refresh();
+        attractionDetailsDtoGrid.setItems(Collections.emptyList());
+        locationSearchDtoGrid.setItems(Collections.emptyList());
+        searchField.clear();
+
         setAttractionDto(null);
+        attractionView.refresh();
     }
 
     public void setAttractionDto(AttractionDto attractionDto) {
